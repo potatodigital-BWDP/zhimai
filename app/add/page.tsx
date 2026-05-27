@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -18,8 +18,18 @@ export default function AddPage() {
   const [sourceType, setSourceType] = useState('book')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [authReady, setAuthReady] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) { router.replace('/login'); return }
+      setAuthReady(true)
+    })
+  }, [])
+
+  if (!authReady) return <div className="text-gray-400 text-sm py-8">確認登入中…</div>
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
