@@ -27,8 +27,7 @@ export default function SignupPage() {
       },
     })
     if (err) { setError(err.message); setLoading(false); return }
-    router.push('/')
-    router.refresh()
+    router.push('/signup/confirm')
   }
 
   return (

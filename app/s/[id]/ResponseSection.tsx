@@ -50,6 +50,7 @@ function ReplyForm({ sentenceId, parentResponseId, user, onDone }: ReplyFormProp
   const [quote, setQuote] = useState('')
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
@@ -57,7 +58,8 @@ function ReplyForm({ sentenceId, parentResponseId, user, onDone }: ReplyFormProp
     e.preventDefault()
     if (!content.trim()) return
     setLoading(true)
-    await supabase.from('responses').insert({
+    setError('')
+    const { error: insertErr } = await supabase.from('responses').insert({
       sentence_id: sentenceId,
       user_id: user.id,
       content: content.trim(),
@@ -65,6 +67,7 @@ function ReplyForm({ sentenceId, parentResponseId, user, onDone }: ReplyFormProp
       parent_response_id: parentResponseId,
       quote: quote.trim() || null,
     })
+    if (insertErr) { setError(insertErr.message); setLoading(false); return }
     setContent('')
     setQuote('')
     setLoading(false)
@@ -98,6 +101,7 @@ function ReplyForm({ sentenceId, parentResponseId, user, onDone }: ReplyFormProp
         rows={3}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-gray-400"
       />
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
       <div className="flex gap-2 mt-2">
         <button type="submit" disabled={loading || !content.trim()}
           className="px-4 py-1.5 bg-gray-900 text-white text-sm rounded-full disabled:opacity-40 hover:bg-gray-700 transition">
